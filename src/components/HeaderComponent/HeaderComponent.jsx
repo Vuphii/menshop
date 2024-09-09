@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import * as UserService from '../../services/UserService';
 import { resetUser } from '../../redux/slides/useSlide';
 import {hoverStyle, normalStyle, styleAvatar, styleUser, styleCart} from '../../components/HeaderComponent/style'; // Nhập các kiểu CSS đúng cách
+import { searchProduct } from '../../redux/slides/productSlide';
 
 
 
@@ -18,7 +19,8 @@ const HeaderComponent = ({isHiddenSearch = false, isHiddenCart = false}) => {
     const navigate = useNavigate();
     const [userName, setUserName] = useState('')
     const [userAvatar, setUserAvatar] = useState('')
-    const [isClickedUser, setIsClickedUser] = useState(false);
+    const [search, setSearch] = useState('')
+    const [isOpenPoup, setIsOpenPoup] = useState(false);
     const [isClickedCart, setIsClickedCart] = useState(false);
     const user = useSelector((state) => state.user);
     const order = useSelector((state) => state.order);
@@ -40,15 +42,35 @@ const HeaderComponent = ({isHiddenSearch = false, isHiddenCart = false}) => {
 
     const content = (
         <div>
-            <WrapperContentPopup onClick={handleLogout}> Log out </WrapperContentPopup>
-            <WrapperContentPopup onClick={()=> navigate('/profile')}>Infor User</WrapperContentPopup>
+            <WrapperContentPopup onClick={()=> handleClickNavigate('profile')}>Infor User</WrapperContentPopup>
             {user?.isAdmin && ( // Corrected the typo here
-                <WrapperContentPopup onClick={() => navigate('/system/admin')}>Quan ly he thong</WrapperContentPopup>
+                <WrapperContentPopup onClick={() => handleClickNavigate('admin')}>Quan ly he thong</WrapperContentPopup>
             )}
+            <WrapperContentPopup  onClick={() => handleClickNavigate('my-order')}> Don hang cua toi </WrapperContentPopup>
+            <WrapperContentPopup onClick={handleLogout}> Log out </WrapperContentPopup>
+
+
 
         </div>
-    )
-   
+    );
+    const handleClickNavigate = (type) => {
+        if(type === 'profile'){
+            navigate('/profile');
+        }else if(type === 'admin'){
+            navigate('/system/admin');
+        }else if(type === 'my-order'){
+            navigate('/my-order');
+        }else{
+            handleLogout();
+        }
+        setIsOpenPoup(false);
+    }
+       
+   const onSearch = (e) => {
+    setSearch(e.target.value);
+    dispatch(searchProduct(e.target.value));    
+    console.log('e',e.target.value);
+   }
     return (
         <WrapperHeader style={{justifyContent: isHiddenCart && isHiddenSearch ? 'space-between' : 'unset'}} gutter={16}>
         <Col span={10} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start' }}>
@@ -73,6 +95,7 @@ const HeaderComponent = ({isHiddenSearch = false, isHiddenCart = false}) => {
                         size="large"
                         placeholder="Tìm kiếm sản phẩm"
                         textbutton="Search"
+                        onChange={onSearch}
 
                     />
             </Col>
@@ -95,10 +118,10 @@ const HeaderComponent = ({isHiddenSearch = false, isHiddenCart = false}) => {
                     <div style={{ display: 'flex', alignItems: 'center'}}>
                         {user?.access_token ? (
                             <>
-                                <Popover content = {content} trigger="click">
+                                <Popover content = {content} trigger="click" open={isOpenPoup}>
                                     <div 
-                                        style={isClickedUser ? hoverStyle : normalStyle}
-                                        onClick={() => setIsClickedUser(!isClickedUser)}
+                                        style={isOpenPoup ? hoverStyle : normalStyle}
+                                        onClick={() => setIsOpenPoup((prev) => !prev)}
         
                                          >
                                             {user.name.length ? user.name : user?.email}

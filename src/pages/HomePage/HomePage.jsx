@@ -10,18 +10,24 @@ import NavbarComponent from '../../components/NavbarComponent/NavBarComponent';
 import * as ProductService from '../../services/ProductService';
 import { useQuery } from '@tanstack/react-query';
 import { useSelector } from 'react-redux';
+import { useDebounce } from '../../hooks/useDebounce';
 
 const HomePage = () => {
+    
     const searchProduct = useSelector((state) => state?.product?.search);
+    const searchDebounce = useDebounce(searchProduct, 1000);
+    const [limit, setLimit] = useState(6);
     const [typeProduct, setTypeProduct] = useState([]);
     const fetchProductAll = async (context) => {
-        const limit = context.queryKey && context?.queryKey[1]
-        const search = context.queryKey && context?.queryKey[2]
+        console.log('context', context)
+        const limit = context?.queryKey && context?.queryKey[1]
+        const search = context?.queryKey && context?.queryKey[2]
         const res = await ProductService.getAllProduct(search, limit)
         console.log('res', res);
         return res;
         
     }
+
 
     const fetchAllTypeProduct = async() => {
         const res = await ProductService.getAllTypeProduct();
@@ -30,11 +36,13 @@ const HomePage = () => {
         }
     }
 
-    const { isLoading, data: products} = useQuery({
-        queryKey: ['products'],
+    const { isLoading, data: products, isPreviousData} = useQuery({
+        queryKey: ['products', limit, searchDebounce],
         queryFn: fetchProductAll,
         retry: 3,
-        retryDelay: 1000
+        retryDelay: 1000,
+        staleTime: 5000,  // Đặt thời gian tươi (5 giây), điều này sẽ giữ dữ liệu cũ trong 5 giây
+        cacheTime: 10000,
     });
 
     useEffect(()=>{
@@ -85,15 +93,19 @@ const HomePage = () => {
                 })}
             </WrapperProducts>
         <div style={{width: '100%', display: 'flex', justifyContent: 'center', marginTop: '10px'}}>
-            <WrapperButtonMore textbutton="xem them" 
+            <WrapperButtonMore 
+            disabled={products?.total === products?.data?.length}
+            textbutton="xem them" 
             type="out" 
             style={{
-                border: '1px solid black',
+                border: '1px solid rgb(11, 116, 229)',
                 color: 'black',
                 width: '240px',
                 height: '30px',
+                borderRadius: '4px'
             }}
             styleTextButton={{fontWeight: '500'}}
+            onClick={() => setLimit((prev) => prev + 6)}
             /> 
         </div>
         </div>

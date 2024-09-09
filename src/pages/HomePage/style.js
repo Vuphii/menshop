@@ -23,6 +23,9 @@ export const WrapperType = styled.div`
             color: #fff; /* Màu chữ bên trong khi hover */
         }
     }
+    width: 100%;
+    text-align: center;
+    cursor: ${(props) => props.disabled? 'not-allowed' : 'pointers'}
 `;
 
 

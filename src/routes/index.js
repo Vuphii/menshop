@@ -10,6 +10,7 @@ import Profile from "../pages/Profile/ProfilePage";
 import AdminPage from "../pages/AdminPage/AdminPage";
 import PaymentPage from "../pages/PaymentPage/Payment";
 import OrderSuccessPage from "../pages/OrderSuccess/OrderSuccess";
+import MyOrderPage from "../pages/MyOrderPage/MyOrderPage";
 
 
 
@@ -42,6 +43,12 @@ export const routes = [
         page: DetailProductPage,
         isShowPage: true
     },
+    {
+        path: '/my-order',
+        page: MyOrderPage,
+        isShowPage: true
+    },
+    
     {
         path: '/order',
         page: OrderPage,
